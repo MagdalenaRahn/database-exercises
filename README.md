@@ -1,0 +1,1 @@
+This repository is used for as-of-yet undetermined exercises that will be pushed to GitHub. Statrting on 24 October 2022, week 2 of the Data Science programme at Codeup.
