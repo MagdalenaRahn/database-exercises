@@ -100,3 +100,129 @@ SELECT * FROM employees
 WHERE birth_date LIKE '195%'
 	ORDER BY hire_date ASC, first_name ASC
 		LIMIT 5 OFFSET 3;
+
+
+SELECT * FROM employees
+WHERE LEFT(last_name, 1) = 'E';
+-- this takes the first character from the left in the surname.
+
+SELECT * FROM employees
+WHERE LEFT(last_name, 1) = 'e' AND RIGHT(last_name, 1) = 'e';
+
+
+-- following is CONCAT exercises
+USE albums_db;
+select * from albums limit 50;
+
+select concat (artist, ' - ', `name`) AS artist_album
+from albums;
+
+select artist as stage_name, `name`, concat(artist, ' - ', `name`) AS artist_album
+from albums;
+
+-- following is SUBSTRING / SUBSTR
+SELECT SUBSTR('adam krull', 3, 9) AS your_instructor_Adam ;
+
+SELECT artist,
+	SUBSTR(artist, 2, 5) AS artist_brf,
+	SUBSTR(`name`, 1, 5) AS name_brf
+FROM albums;
+
+
+-- this takes the first 5 letters of the artist's name and connects them to the first 5 letters of the album name :
+SELECT artist,
+	CONCAT(SUBSTR(artist, 1, 5), SUBSTR(`name`, 1, 5)) AS artist_album_id
+FROM albums;
+-- this is also an exmple of nesting functions
+
+
+SELECT SUBSTR('Magdalena', 1,1), SUBSTR('RAHN', 1,1) AS initials;
+SELECT CONCAT(SUBSTR('Magdalena', 1,1), SUBSTR('RAHN', 1,1)) AS initials;
+
+
+USE zillow;
+SELECT * FROM properties_2016 LIMIT 100;
+
+SELECT DISTINCT SUBSTR(regionidzip, 1,2) AS zip_first2digits FROM properties_2016 LIMIT 100;
+
+SELECT * FROM `properties_2016` WHERE substr(regionidzip, 1,2) = 39;
+
+
+USE albums_db;
+
+SELECT artist,
+	CONCAT(SUBSTR(artist, 1, 5), SUBSTR(`name`, 1, 5)) AS artist_album_id
+FROM albums;
+
+-- CONVERT ALL INDICATED TEXT TO LOWERCASE / UPPERCASE
+SELECT artist,
+	LOWER(CONCAT(SUBSTR(artist, 1, 5), SUBSTR(`name`, 1, 5))) AS artist_album_id
+FROM albums;
+
+SELECT UPPER('magdalena');
+
+
+USE saas_llc;
+SELECT * from customer_details limit 100;
+
+SELECT UPPER(state) AS state FROM customer_details;
+
+SELECT DISTINCT UPPER(state) AS state FROM customer_details;
+
+SELECT REPLACE ('Magdalena', 'gdalena', 'dge');
+
+USE saas_llc;
+SELECT city, street_name, state, zip, 
+CONCAT('0', ZIP) AS full_zip,
+LOWER (street_name) AS street,
+REPLACE (state, 'A', 'assachusetts') AS full_state -- note that the replace-function is case-sensitive
+FROM customer_details
+ORDER BY street_name;
+ 
+ 
+-- date / time functions
+
+select NOW();
+SELECT curdate();
+
+
+-- this subtracts the yearbuilt from the current date, to get the current age of the house.
+-- order by is done after the functions, so it accespts using alias for its commands (see below)
+
+USE zillow;
+select * from properties_2016 limit 100;
+select year(curdate()) - yearbuilt AS age
+from properties_2016
+where yearbuilt is not null
+order by age
+limit 100;
+
+
+use employees;
+select birth_date, datediff(now(), birth_date) / 365
+as age from employees;
+
+
+select unix_timestamp(); 
+-- number of seconds since midnight 01 Jan 1970
+select concat ('my niece Beatrix is ', unix_timestamp() - unix_timestamp(2012-05-10)), ' seconds old.';
+
+
+use zillow;
+select 
+	min(calculatedfinishedsquarefeet) AS min_sq_ft, 
+	max(calculatedfinishedsquarefeet) AS max_sq_ft, 
+	round(avg(calculatedfinishedsquarefeet), 2) AS rounded_avg_sq_ft,
+	std(calculatedfinishedsquarefeet) AS std_dev_sq_ft
+from properties_2016 limit 100;
+
+
+USE saas_llc;
+SELECT cast(CONCAT('0', zip) AS char) AS full_zip
+FROM customer_details
+ORDER BY full_zip;
+-- casting converts one type to another, for example, integer to string
+
+select cast(01242 as unsigned);
+select cast(11010909 as date);
+
