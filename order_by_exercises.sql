@@ -29,6 +29,12 @@ SELECT * FROM employees
 WHERE last_name LIKE 'e%' AND last_name LIKE '%e'
 	ORDER BY emp_no;
 
+-- or this way :
+
+SELECT * FROM employees
+WHERE last_name LIKE 'e%e'
+	ORDER BY emp_no;
+
 
 /*  6. Write a query to to find all employees whose last name starts and ends with 'E'. Sort the results by their hire date, so that the newest employees are listed first. Enter a comment with the number of employees returned, the name of the newest employee, and the name of the oldest employee. 
 THERE ARE 899 EMPLOYEES WHOSE LAST NAME STARTS AND ENDS WITH 'E'. 
@@ -40,12 +46,12 @@ WHERE last_name LIKE 'e%' AND last_name LIKE '%e'
 
 
 /*  7. Find all employees hired in the 90s and born on Christmas. Sort the results so that the oldest employee who was hired last is the first result. Enter a comment with the number of employees returned, the name of the oldest employee who was hired last, and the name of the youngest employee who was hired first. 
-THERE WERE 358 EMPLOYEES HIRED IN THE 1990s AND WHO WERE BORN ON CHRISTMAS. 
-THE OLDEST EMPLOYEE WHO WAS HIRED LAST WAS YANNIK CHIODO.
-THE YOUNGEST EMPLOYEE WHO WAS HIRED FIRST WAS PRZEMYSLAWA HEYDON.
+THERE WERE 362 EMPLOYEES HIRED IN THE 1990s AND WHO WERE BORN ON CHRISTMAS. 
+THE OLDEST EMPLOYEE WHO WAS HIRED LAST WAS Khun Bernini.
+THE YOUNGEST EMPLOYEE WHO WAS HIRED FIRST WAS Douadi Pettis.
 */
 SELECT * FROM employees
 WHERE (hire_date BETWEEN '1990-01-01' AND '1999-12-31')
-	AND (birth_date LIKE '%%%%-12-31')
+	AND (birth_date LIKE '%%%%-12-25')
 		ORDER BY birth_date ASC, hire_date DESC;
 
