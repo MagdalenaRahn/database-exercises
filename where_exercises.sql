@@ -48,6 +48,10 @@ THERE ARE 24 292 EMPLOYEES WHOSE LAST NAME ENDS WITH 'E', REGARDLESS OF THE LETT
 SELECT * FROM employees
 WHERE last_name LIKE 'E%' AND last_name LIKE '%E';
 
+-- or this way :
+SELECT * FROM employees
+WHERE last_name LIKE 'E%E';
+ 
 SELECT * FROM employees
 WHERE last_name LIKE '%E';
 
@@ -60,18 +64,18 @@ WHERE hire_date BETWEEN '1990-01-01' AND '1999-12-31';
 
 
 /* 9. Find all current or previous employees born on Christmas. Enter a comment with the number of employees returned. 
-THERE WERE 818 EMPLOYEES BORN ON CHRISTMAS.
+THERE WERE 842 EMPLOYEES BORN ON CHRISTMAS.
 */
 SELECT * FROM employees
-WHERE birth_date LIKE '%%%%-12-31';
+WHERE birth_date LIKE '%%%%-12-25';
 
 
 /* 10. Find all current or previous employees hired in the 90s and born on Christmas. Enter a comment with the number of employees returned. 
-THERE WERE 818 EMPLOYEES BORN ON CHRISTMAS AND HIRED IN THE 1990s. 
+THERE WERE 362 EMPLOYEES BORN ON CHRISTMAS AND HIRED IN THE 1990s. 
 */
 SELECT * FROM employees
 WHERE hire_date BETWEEN '1990-01-01' AND '1999-12-31'
-	AND birth_date LIKE '%%%%-12-31';
+	AND birth_date LIKE '%%%%-12-25';
 
 
 /* 11. Find all current or previous employees with a 'q' in their last name. Enter a comment with the number of records returned.
@@ -85,3 +89,10 @@ THERE WERE 1873 EMPLOYEES WITH 'Q' BUT NOT 'QU' IN THEIR LAST NAME.
 */
 SELECT * FROM employees
 WHERE last_name LIKE '%Q%' AND last_name NOT LIKE '%qu%';
+
+SELECT * FROM employees
+WHERE LEFT(last_name, 1) = 'E';
+-- this takes the first character from the left in the surname.
+
+SELECT * FROM employees
+WHERE LEFT(last_name, 1) = 'e' AND RIGHT(last_name, 1) = 'e';
