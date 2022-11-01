@@ -7,20 +7,40 @@
    d. What is another way you could have ended up with this same table?
 */
 
-USE noether_2020;
-SHOW tables; 
 
-DROP TABLE IF EXISTS noether_2020.employees_with_departments;
-CREATE TEMPORARY TABLE employees_with_departments (
+SHOW tables; 
+use employees;
+
+
+DROP TEMPORARY TABLE IF EXISTS noether_2020.employees_with_departments;
+
+CREATE TEMPORARY TABLE noether_2020.employees_with_departments (
 	first_name VARCHAR(13) NOT NULL,
 	last_name VARCHAR(13) NOT NULL,
 	dept_name VARCHAR(13) NOT NULL
 	);
 
-SELECT * FROM noether_2020.employees_with_departments;
+-- this is correct, apparently.
+CREATE TEMPORARY TABLE noether_2020.employees_with_departments 
+	AS (
+	SELECT first_name, last_name, dept_name 
+	FROM employees 
+	join dept_emp USING(emp_no) 
+	JOIN departments USING (dept_no)
+	);
+
+USE noether_2020;
+
+
+SELECT * FROM employees_with_departments;
 
 /* a. */
-ALTER TABLE noether_2020.employees_with_departments ADD full_name VARCHAR(26);
+ALTER TABLE noether_2020.employees_with_departments ADD full_name VARCHAR(31);
+-- or :
+DESCRIBE employees_with_departments;
+
+update employees_with_departments SET full_name = CONCAT(first_name, ' ', last_name);
+
 /* b. */
 SELECT * FROM noether_2020.employees_with_departments;
 /* c. */
@@ -51,12 +71,49 @@ CREATE TEMPORARY TABLE noether_2020.sakilapayment
 	customer_id INT(5) NOT NULL,
 	amount decimal(5,2));
 
+-- this is correct, apparently.
+CREATE TEMPORARY TABLE noether_2020.sakilapayment 
+AS 
+	(SELECT payment_id, customer_id, amounT, payment_date 
+	FROM payment
+	);
+
 SELECT * FROM noether_2020.sakilapayment;
 
+SELECT payment_id, amount * 100
+FROM noether_2020.sakilapayment;
+
+ALTER TABLE noether_2020.sakilapayment ADD pennies INT(5) NOT NULL;
+
+SELECT *
+FROM noether_2020.sakilapayment;
+
+update noether_2020.sakilapayment set pennies = amount * 100;
+
+SELECT * 
+FROM noether_2020.sakilapayment;
+
+ALTER TABLE noether_2020.sakilapayment DROP COLUMN amount;
+
+-- or this way :
+CREATE TEMPORARY TABLE noether_2020.sakilapayment 
+AS 
+	(SELECT payment_id, customer_id, amounT, payment_date 
+	FROM payment
+	);
+
+SELECT CAST(amount * 100 AS UNSIGNED) AS cents
+FROM noether_2020.sakilapayment;
+
+
+
+--- this below is mine :
 ALTER TABLE noether_2020.sakilapayment MODIFY amount INT(5) NOT NULL; 
 -- THE 'ALTER COLUMN' CMD DOESN'T WORK HERE, BUT THE 'MODIFY' DOES.
 
 SELECT * FROM noether_2020.sakilapayment;
+
+
 
 /* 
 3. Find out how the current average pay in each department compares to the overall current pay for everyone at the 
@@ -103,9 +160,64 @@ SELECT emp_no, first_name, last_name, salary, dept_name
 	FROM noether_2020.empsal;
 ROUND(AVG(salary), 2); -- this is not working
 
+-- z-score equasion :
 SELECT salary,
     (salary - (SELECT AVG(salary) FROM salaries))
     /
-    (SELECT stddev(salary) FROM salaries) AS `z-score`
+    (SELECT stddev(salary) FROM salaries) AS zscore
 FROM salaries;
 
+
+
+
+-- class discussion :
+use employees;
+# AGGREGATE INFORMATION :
+CREATE TEMPORARY TABLE noether_2020.empsal AS (
+	SELECT AVG(salary) AS avg_salary, STDDEV_POP(salary) AS std_salary
+	FROM employees.salaries
+	WHERE to_date > NOW()
+	);
+
+# CHECK
+SELECT * FROM noether_2020.empsal;
+
+# CREATE COLUMNS FOR TABLE
+CREATE TEMPORARY TABLE noether_2020.metrics AS (
+	SELECT dept_name, AVG(salary) AS dept_avg
+	FROM employees.salaries
+	JOIN employees.dept_emp USING(emp_no)
+	JOIN employees.departments USING(dept_no)
+	WHERE employees.dept_emp.to_date > NOW()
+	AND employees.salaries.to_date > NOW()
+	GROUP BY dept_name
+	);
+
+# CHECK
+SELECT * FROM noether_2020.metrics;
+
+# CREATE COLUMNS FOR TABLE
+ALTER TABLE noether_2020.metrics ADD overall_avg FLOAT(10, 2);
+ALTER TABLE noether_2020.metrics ADD overall_std FLOAT(10, 2);
+ALTER TABLE noether_2020.metrics ADD dept_zscore FLOAT(10, 2);
+
+# CHECK
+SELECT * FROM noether_2020.metrics;
+
+# UPDATE THE TABLE WITH THE AVERAGE
+UPDATE noether_2020.metrics SET overall_avg = (SELECT avg_salary FROM noether_2020.empsal);
+
+# CHECK
+SELECT * FROM noether_2020.metrics;
+
+# UPDATE THE TABLE WITH THE STANDARD DEVIATION
+UPDATE noether_2020.metrics SET overall_std = (SELECT std_salary FROM noether_2020.empsal);
+
+# CHECK
+SELECT * FROM noether_2020.metrics;
+
+# UPDATE THE TABLE WITH THE CALCULATED Z-SCORE
+UPDATE noether_2020.metrics SET dept_zscore = (dept_avg - overall_avg) / overall_std;
+
+# CHECK
+SELECT * FROM noether_2020.metrics;
